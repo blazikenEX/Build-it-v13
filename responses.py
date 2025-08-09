@@ -8,6 +8,8 @@ def chatbot_responses(user_input):
     return "There is a second-hand buy and sell group for aalto students - t.me/aaltomarketplace"
   elif "joke" in user_input:
     return "Why couldn't the bicycle stand up by itself? Because it was two-tired!"
+  elif "meme" in user_input:
+    return "[IMG]"
   else:
     return ("sorry don't know")
 

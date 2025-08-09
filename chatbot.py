@@ -2,7 +2,30 @@ import webbrowser
 from tkinter import Tk, Text, Entry, Button, END, Label
 from responses import chatbot_responses  # or wherever your function is
 from urls import URLS  # Import your URL dictionary
+from PIL import Image, ImageTk
 
+_image_refs = []  # keep image refs so they don't disappear
+
+def insert_image(path, max_width):
+    img = Image.open(path)
+
+     # Calculate scaling ratio
+    if img.width > max_width:
+        ratio = max_width / img.width
+        new_size = (max_width, int(img.height * ratio))
+        img = img.resize(new_size, Image.LANCZOS)  # high quality resize
+    
+    tk_img = ImageTk.PhotoImage(img)
+
+    _image_refs.append(tk_img)
+
+    text_area.insert("end", "\n")  # space before image
+    text_area.image_create(END, image=tk_img, padx=50, pady=0)
+    text_area.insert(END, "\n", "center")  # newline after image
+
+    # Configure tag to center
+    text_area.tag_configure("center", justify="center")
+ 
 def open_link(label):
     webbrowser.open_new(label)
 
@@ -17,35 +40,41 @@ def send_message():
     text_area.insert(END, f"User: {user_input}\n")
     text_area.insert(END, f"Chatbot: ")
 
-    # Loop through all URLs in urls.py
-    for key, site in URLS.items():
-        if site in response:  # if the URL text is in the response
-            before, link, after = response.partition(site)
-
-            # insert the beginning  of the sentence
-            text_area.insert(END, before)
-
-            # 2) link label (blue + underlined + clickable)
-            link_clean = link.strip(" \n\t.,;:!?")
-            url = link_clean if link_clean.startswith(("http://", "https://")) else "https://" + link_clean
-            link_lbl = Label(
-                root,
-                text=link_clean,
-                fg="blue",
-                cursor="hand2",
-                font=("Arial", 10, "underline"),
-            )
-
-            link_lbl.bind("<Button-1>", lambda e, u=url: webbrowser.open_new(u))
-
-            # embed label inside Text widget here:
-            text_area.window_create(END, window=link_lbl)
-            # insert the rest of the sentence
-            text_area.insert(END, after)
-            break
+    if "[IMG]" in response:
+        # Insert text before [IMG]
+        before = response.replace("[IMG]", "").strip()
+        text_area.insert(END, before + "\n")
+        insert_image("pic.jpg", 200)  # path to your image
     else:
-        # No link found, just insert the response normally
-        text_area.insert(END, response)
+        # Loop through all URLs in urls.py
+        for key, site in URLS.items():
+            if site in response:  # if the URL text is in the response
+                before, link, after = response.partition(site)
+
+                # insert the beginning  of the sentence
+                text_area.insert(END, before)
+
+                # 2) link label (blue + underlined + clickable)
+                link_clean = link.strip(" \n\t.,;:!?")
+                url = link_clean if link_clean.startswith(("http://", "https://")) else "https://" + link_clean
+                link_lbl = Label(
+                    root,
+                    text=link_clean,
+                    fg="blue",
+                    cursor="hand2",
+                    font=("Arial", 10, "underline"),
+                )
+
+                link_lbl.bind("<Button-1>", lambda e, u=url: webbrowser.open_new(u))
+
+                # embed label inside Text widget here:
+                text_area.window_create(END, window=link_lbl)
+                # insert the rest of the sentence
+                text_area.insert(END, after)
+                break
+        else:
+            # No link found, just insert the response normally
+            text_area.insert(END, response)
 
     text_area.insert(END, "\n\n")
 
