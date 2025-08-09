@@ -1,3 +1,4 @@
+import random
 responses = [
     "Hello! How can I help you?",
     "What's on your mind?",
