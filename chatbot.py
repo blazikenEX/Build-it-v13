@@ -23,6 +23,10 @@ root.title("Chatbot")
 text_area = Text(root, bg="white", width=50, height=20)
 text_area.pack()
 
+# Insert a greeting before user types anything
+greeting = "Hello! I'm your chatbot. How can I help you today?\n\n"
+text_area.insert(END, f"Chatbot: {greeting}")
+
 # Create the user's input field
 input_field = Entry(root, width=50)
 input_field.pack()
