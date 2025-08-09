@@ -69,5 +69,8 @@ input_field.pack()
 send_button = Button(root, text="Send", command=send_message)
 send_button.pack()
 
+# Gives you the possibility to send messages by clicking enter on your keyboard
+input_field.bind("<Return>", lambda e: send_message())
+
 root.mainloop()
 
